@@ -11,12 +11,38 @@ void command(Voisk& v, bool por)
     v.sort(por);
     //v.print();
 }
+void command2(Voisk& v, bool por)
+{
+    v.print();
+
+    v.sortGuns(por);
+    //v.print();
+}
+void war(Voisk& v1, Voisk& v2)
+{
+    if (&v1 < &v2) {
+        unique_lock<mutex> lock1(v1.getLock());
+        unique_lock<mutex> lock2(v2.getLock());
+        v1.war(v2);
+        lock2.unlock();
+        lock1.unlock();
+    }
+    else {
+        unique_lock<mutex> lock1(v2.getLock());
+        unique_lock<mutex> lock2(v1.getLock());
+        v1.war(v2);
+        lock2.unlock();
+        lock1.unlock();
+    }
+
+}
 int main()
 {
     Voisk test(8);
+    Voisk test1(8);
 
-    thread g1(command, ref(test), true);
-    thread g2(command, ref(test), false);
+    thread g1(war, ref(test), ref(test1));
+    thread g2(war, ref(test1), ref(test));
     g1.join();
     g2.join();
     std::cout << "\n\n\n\n";
